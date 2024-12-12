@@ -8,4 +8,4 @@ cmd = "pip install python-telegram-bot apscheduler"
 cmd = ""
 
 [phases.start]
-cmd = "python channel_bot0.py"
+cmd = "py channel_bot0.py"
