@@ -69,8 +69,8 @@ def schedule_jobs(application):
     scheduler.add_job(
         send_to_channel, 
         trigger='cron', 
-        hour=1, 
-        minute=0o5, 
+        hour=9, 
+        minute=0, 
         args=[application]
     )
     scheduler.add_job(
