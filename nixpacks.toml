@@ -1,0 +1,15 @@
+[phases.setup]
+# Specify the Python version
+runtime = "python"
+
+[phases.install]
+# Install dependencies using pip
+cmd = "pip install python-telegram-bot apscheduler"
+
+[phases.build]
+# No build step needed for a Python script
+cmd = ""
+
+[phases.start]
+# Run your script
+cmd = "python channel_bot0.py"
