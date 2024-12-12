@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 # Constants
 BOT_TOKEN = '7542483069:AAEsn9mt8aNXZcvnGoKn8salwdjC3galfL8'
-CHANNEL_USERNAME = '@colour_trading_1win'
+CHANNEL_USERNAME = '@gameannouncement'
 stored_content = []  # Store messages, photos, and videos
 
 # Handler to store incoming messages
@@ -65,7 +65,7 @@ async def send_to_channel(context: ContextTypes.DEFAULT_TYPE):
 
 # Scheduler setup
 def schedule_jobs(application):
-    scheduler = AsyncIOScheduler()
+    scheduler = AsyncIOScheduler(event_loop=application.loop)  # Use the bot's asyncio event loop
     scheduler.add_job(
         send_to_channel, 
         trigger='cron', 
