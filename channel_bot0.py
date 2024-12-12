@@ -1,4 +1,5 @@
 import logging
+import asyncio
 from telegram import Bot, Update
 from telegram.ext import (
     ApplicationBuilder,
@@ -18,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 # Constants
 BOT_TOKEN = '7542483069:AAEsn9mt8aNXZcvnGoKn8salwdjC3galfL8'
-CHANNEL_USERNAME = '@gameannouncement'
+CHANNEL_USERNAME = '@colour_trading_1win'
 stored_content = []  # Store messages, photos, and videos
 
 # Handler to store incoming messages
@@ -64,35 +65,31 @@ async def send_to_channel(context: ContextTypes.DEFAULT_TYPE):
     logger.info("All stored content has been sent and cleared.")
 
 # Scheduler setup
-def schedule_jobs(application):
-    scheduler = AsyncIOScheduler(event_loop=application.loop)  # Use the bot's asyncio event loop
+def schedule_jobs():
+    scheduler = AsyncIOScheduler()
     scheduler.add_job(
         send_to_channel, 
         trigger='cron', 
         hour=9, 
-        minute=0, 
-        args=[application]
+        minute=0
     )
     scheduler.add_job(
         send_to_channel, 
         trigger='cron', 
         hour=12, 
-        minute=0, 
-        args=[application]
+        minute=0
     )
     scheduler.add_job(
         send_to_channel, 
         trigger='cron', 
         hour=16, 
-        minute=0, 
-        args=[application]
+        minute=0
     )
     scheduler.add_job(
         send_to_channel, 
         trigger='cron', 
         hour=18, 
-        minute=0, 
-        args=[application]
+        minute=0
     )
     scheduler.start()
     logger.info("Jobs scheduled successfully.")
@@ -104,8 +101,9 @@ def main():
     # Add handlers
     application.add_handler(MessageHandler(filters.ALL, store_message))
 
-    # Schedule jobs
-    schedule_jobs(application)
+    # Start the scheduler
+    loop = asyncio.get_event_loop()
+    loop.create_task(schedule_jobs())
 
     # Run the bot
     logger.info("Bot is running.")
