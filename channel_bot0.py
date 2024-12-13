@@ -1,13 +1,13 @@
 import logging
-from telegram import Bot, Update
+from telegram import Update
 from telegram.ext import (
     ApplicationBuilder,
-    CommandHandler,
     MessageHandler,
     filters,
     ContextTypes,
 )
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+import asyncio
 
 # Logging setup
 logging.basicConfig(
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 # Constants
 BOT_TOKEN = '7542483069:AAEsn9mt8aNXZcvnGoKn8salwdjC3galfL8'
-CHANNEL_USERNAME = '@colour_trading_1win'
+CHANNEL_USERNAME = '@gameannouncement'
 stored_content = []  # Store messages, photos, and videos
 
 # Handler to store incoming messages
@@ -64,52 +64,52 @@ async def send_to_channel(context: ContextTypes.DEFAULT_TYPE):
     logger.info("All stored content has been sent and cleared.")
 
 # Scheduler setup
-def schedule_jobs(application):
-    scheduler = AsyncIOScheduler()
+def schedule_jobs(scheduler, application):
     scheduler.add_job(
-        send_to_channel, 
-        trigger='cron', 
-        hour=20, 
-        minute=0, 
+        send_to_channel,
+        trigger='cron',
+        hour=20,
+        minute=0,
         args=[application]
     )
     scheduler.add_job(
-        send_to_channel, 
-        trigger='cron', 
-        hour=12, 
-        minute=0, 
+        send_to_channel,
+        trigger='cron',
+        hour=12,
+        minute=0,
         args=[application]
     )
     scheduler.add_job(
-        send_to_channel, 
-        trigger='cron', 
-        hour=16, 
-        minute=0, 
+        send_to_channel,
+        trigger='cron',
+        hour=16,
+        minute=0,
         args=[application]
     )
     scheduler.add_job(
-        send_to_channel, 
-        trigger='cron', 
-        hour=18, 
-        minute=0, 
+        send_to_channel,
+        trigger='cron',
+        hour=18,
+        minute=0,
         args=[application]
     )
-    scheduler.start()
     logger.info("Jobs scheduled successfully.")
 
 # Main function
-def main():
+async def main():
     application = ApplicationBuilder().token(BOT_TOKEN).build()
 
     # Add handlers
     application.add_handler(MessageHandler(filters.ALL, store_message))
 
-    # Schedule jobs
-    schedule_jobs(application)
+    # Initialize scheduler
+    scheduler = AsyncIOScheduler()
+    schedule_jobs(scheduler, application)
+    scheduler.start()
 
     # Run the bot
     logger.info("Bot is running.")
-    application.run_polling()
+    await application.run_polling()
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
