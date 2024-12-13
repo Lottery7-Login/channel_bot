@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 # Constants
 BOT_TOKEN = '7542483069:AAEsn9mt8aNXZcvnGoKn8salwdjC3galfL8'
-CHANNEL_USERNAME = '@gameannouncement'
+CHANNEL_USERNAME = '@colour_trading_1win'
 stored_content = []  # Store messages, photos, and videos
 
 # Handler to store incoming messages
@@ -66,36 +66,33 @@ async def send_to_channel(context: ContextTypes.DEFAULT_TYPE):
 # Scheduler setup
 def schedule_jobs(application):
     scheduler = AsyncIOScheduler()
-
-    # Wrapper to pass the application context
-    async def send_to_channel_job():
-        # Get the bot's context
-        context = application.bot
-        await send_to_channel(context)
-
     scheduler.add_job(
-        send_to_channel_job,
-        trigger='cron',
-        hour=9,
-        minute=0
+        send_to_channel, 
+        trigger='cron', 
+        hour=20, 
+        minute=0, 
+        args=[application]
     )
     scheduler.add_job(
-        send_to_channel_job,
-        trigger='cron',
-        hour=12,
-        minute=0
+        send_to_channel, 
+        trigger='cron', 
+        hour=12, 
+        minute=0, 
+        args=[application]
     )
     scheduler.add_job(
-        send_to_channel_job,
-        trigger='cron',
-        hour=16,
-        minute=0
+        send_to_channel, 
+        trigger='cron', 
+        hour=16, 
+        minute=0, 
+        args=[application]
     )
     scheduler.add_job(
-        send_to_channel_job,
-        trigger='cron',
-        hour=18,
-        minute=0
+        send_to_channel, 
+        trigger='cron', 
+        hour=18, 
+        minute=0, 
+        args=[application]
     )
     scheduler.start()
     logger.info("Jobs scheduled successfully.")

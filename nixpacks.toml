@@ -1,8 +1,0 @@
-[phases.setup]
-runtime = "python"
-
-[phases.install]
-cmd = "pip install python-telegram-bot apscheduler"
-
-[phases.start]
-cmd = "python3 channel_bot0.py"
