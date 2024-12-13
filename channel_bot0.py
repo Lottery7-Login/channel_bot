@@ -1,7 +1,8 @@
 import logging
-from telegram import Update
+from telegram import Bot, Update
 from telegram.ext import (
     ApplicationBuilder,
+    CommandHandler,
     MessageHandler,
     filters,
     ContextTypes,
@@ -64,35 +65,40 @@ async def send_to_channel(context: ContextTypes.DEFAULT_TYPE):
     logger.info("All stored content has been sent and cleared.")
 
 # Scheduler setup
-def schedule_jobs(scheduler, application):
+def schedule_jobs(application):
+    scheduler = AsyncIOScheduler()
+
+    # Wrapper to pass the application context
+    async def send_to_channel_job():
+        # Get the bot's context
+        context = application.bot
+        await send_to_channel(context)
+
     scheduler.add_job(
-        send_to_channel,
+        send_to_channel_job,
         trigger='cron',
-        hour=20,
-        minute=0,
-        args=[application]
+        hour=9,
+        minute=0
     )
     scheduler.add_job(
-        send_to_channel,
+        send_to_channel_job,
         trigger='cron',
         hour=12,
-        minute=0,
-        args=[application]
+        minute=0
     )
     scheduler.add_job(
-        send_to_channel,
+        send_to_channel_job,
         trigger='cron',
         hour=16,
-        minute=0,
-        args=[application]
+        minute=0
     )
     scheduler.add_job(
-        send_to_channel,
+        send_to_channel_job,
         trigger='cron',
         hour=18,
-        minute=0,
-        args=[application]
+        minute=0
     )
+    scheduler.start()
     logger.info("Jobs scheduled successfully.")
 
 # Main function
@@ -102,14 +108,13 @@ async def main():
     # Add handlers
     application.add_handler(MessageHandler(filters.ALL, store_message))
 
-    # Initialize scheduler
-    scheduler = AsyncIOScheduler()
-    schedule_jobs(scheduler, application)
-    scheduler.start()
+    # Schedule jobs
+    schedule_jobs(application)
 
     # Run the bot
     logger.info("Bot is running.")
     await application.run_polling()
 
+# Entry point
 if __name__ == "__main__":
     asyncio.run(main())
