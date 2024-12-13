@@ -18,8 +18,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Constants
-BOT_TOKEN = '7542483069:AAEsn9mt8aNXZcvnGoKn8salwdjC3galfL8'
-CHANNEL_USERNAME = '@gameannouncement'
+BOT_TOKEN = 'your_bot_token_here'
+CHANNEL_USERNAME = '@your_channel_username'
 stored_content = []  # Store messages, photos, and videos
 
 # Handler to store incoming messages
@@ -117,4 +117,15 @@ async def main():
 
 # Entry point
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            # Use the existing event loop
+            logger.info("Using the existing event loop.")
+            loop.create_task(main())
+        else:
+            # Start a new event loop
+            logger.info("Starting a new event loop.")
+            loop.run_until_complete(main())
+    except RuntimeError as e:
+        logger.error(f"Event loop error: {e}")
