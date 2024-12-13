@@ -1,5 +1,4 @@
 import logging
-import asyncio
 from telegram import Bot, Update
 from telegram.ext import (
     ApplicationBuilder,
@@ -18,8 +17,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Constants
-BOT_TOKEN = '7542483069:AAEsn9mt8aNXZcvnGoKn8salwdjC3galfL8'
-CHANNEL_USERNAME = '@colour_trading_1win'
+BOT_TOKEN = 'your_bot_token_here'
+CHANNEL_USERNAME = '@your_channel_username'
 stored_content = []  # Store messages, photos, and videos
 
 # Handler to store incoming messages
@@ -65,30 +64,37 @@ async def send_to_channel(context: ContextTypes.DEFAULT_TYPE):
     logger.info("All stored content has been sent and cleared.")
 
 # Scheduler setup
-def schedule_jobs():
+def schedule_jobs(application):
     scheduler = AsyncIOScheduler()
+
+    # Wrapper to pass the application context
+    async def send_to_channel_job():
+        # Get the bot's context
+        context = application.bot
+        await send_to_channel(context)
+
     scheduler.add_job(
-        send_to_channel, 
-        trigger='cron', 
-        hour=9, 
+        send_to_channel_job,
+        trigger='cron',
+        hour=9,
         minute=0
     )
     scheduler.add_job(
-        send_to_channel, 
-        trigger='cron', 
-        hour=12, 
+        send_to_channel_job,
+        trigger='cron',
+        hour=12,
         minute=0
     )
     scheduler.add_job(
-        send_to_channel, 
-        trigger='cron', 
-        hour=16, 
+        send_to_channel_job,
+        trigger='cron',
+        hour=16,
         minute=0
     )
     scheduler.add_job(
-        send_to_channel, 
-        trigger='cron', 
-        hour=18, 
+        send_to_channel_job,
+        trigger='cron',
+        hour=18,
         minute=0
     )
     scheduler.start()
@@ -101,9 +107,8 @@ def main():
     # Add handlers
     application.add_handler(MessageHandler(filters.ALL, store_message))
 
-    # Start the scheduler
-    loop = asyncio.get_event_loop()
-    loop.create_task(schedule_jobs())
+    # Schedule jobs
+    schedule_jobs(application)
 
     # Run the bot
     logger.info("Bot is running.")
