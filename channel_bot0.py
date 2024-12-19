@@ -1,13 +1,13 @@
 import logging
-from telegram import Bot, Update
+from telegram import Update
 from telegram.ext import (
     ApplicationBuilder,
-    CommandHandler,
     MessageHandler,
     filters,
     ContextTypes,
 )
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.interval import IntervalTrigger
 import asyncio
 
 # Logging setup
@@ -18,8 +18,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Constants
-BOT_TOKEN = 'your_bot_token_here'
-CHANNEL_USERNAME = '@your_channel_username'
+BOT_TOKEN = '7542483069:AAEsn9mt8aNXZcvnGoKn8salwdjC3galfL8'
+CHANNEL_USERNAME = '@gameannouncement'
 stored_content = []  # Store messages, photos, and videos
 
 # Handler to store incoming messages
@@ -45,10 +45,10 @@ async def store_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # Function to send all messages to the channel
 async def send_to_channel(context: ContextTypes.DEFAULT_TYPE):
     if not stored_content:
-        logger.warning("No content to send.")
+        logger.info("No content to send.")
         return
 
-    for item in stored_content:
+    for item in stored_content[:]:  # Iterate over a copy to allow modification
         try:
             if item["type"] == "photo":
                 await context.bot.send_photo(chat_id=CHANNEL_USERNAME, photo=item["content"])
@@ -57,52 +57,28 @@ async def send_to_channel(context: ContextTypes.DEFAULT_TYPE):
             elif item["type"] == "text":
                 await context.bot.send_message(chat_id=CHANNEL_USERNAME, text=item["content"])
             logger.info(f"Sent {item['type']} to the channel.")
+            stored_content.remove(item)  # Remove after successfully sending
         except Exception as e:
             logger.error(f"Error sending content: {e}")
-
-    # Clear the content after sending
-    stored_content.clear()
-    logger.info("All stored content has been sent and cleared.")
 
 # Scheduler setup
 def schedule_jobs(application):
     scheduler = AsyncIOScheduler()
 
-    # Wrapper to pass the application context
-    async def send_to_channel_job():
-        # Get the bot's context
-        context = application.bot
-        await send_to_channel(context)
+    async def send_job():
+        # Use the bot context to call send_to_channel
+        bot_context = ContextTypes.DEFAULT_TYPE(application.bot)
+        await send_to_channel(bot_context)
 
     scheduler.add_job(
-        send_to_channel_job,
-        trigger='cron',
-        hour=9,
-        minute=0
-    )
-    scheduler.add_job(
-        send_to_channel_job,
-        trigger='cron',
-        hour=12,
-        minute=0
-    )
-    scheduler.add_job(
-        send_to_channel_job,
-        trigger='cron',
-        hour=16,
-        minute=0
-    )
-    scheduler.add_job(
-        send_to_channel_job,
-        trigger='cron',
-        hour=18,
-        minute=0
+        send_job, 
+        IntervalTrigger(minutes=30),  # Send every 30 minutes
     )
     scheduler.start()
     logger.info("Jobs scheduled successfully.")
 
 # Main function
-async def main():
+def main():
     application = ApplicationBuilder().token(BOT_TOKEN).build()
 
     # Add handlers
@@ -113,19 +89,7 @@ async def main():
 
     # Run the bot
     logger.info("Bot is running.")
-    await application.run_polling()
+    application.run_polling()
 
-# Entry point
 if __name__ == "__main__":
-    try:
-        loop = asyncio.get_event_loop()
-        if loop.is_running():
-            # Use the existing event loop
-            logger.info("Using the existing event loop.")
-            loop.create_task(main())
-        else:
-            # Start a new event loop
-            logger.info("Starting a new event loop.")
-            loop.run_until_complete(main())
-    except RuntimeError as e:
-        logger.error(f"Event loop error: {e}")
+    main()
