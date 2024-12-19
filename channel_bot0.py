@@ -18,7 +18,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Constants
-BOT_TOKEN = '7542483069:AAEsn9mt8aNXZcvnGoKn8salwdjC3galfL8'
+BOT_TOKEN = '8019314390:AAG3yq_xEUd_ofBPqOcPRk5jWMZKZzmpKlQ'
 CHANNEL_USERNAME = '@gameannouncement'
 stored_content = []  # Store messages, photos, and videos
 
